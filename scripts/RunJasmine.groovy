@@ -29,25 +29,3 @@ target(default: "Runs the jasmine server") {
   script = script.replace("PLUGIN_DIR", "${jasminePluginDir}")   
   c.runScriptlet(script)             
 }
-
-/*target(default: "Run continuous integration tests") {
-  def c = new org.jruby.embed.ScriptingContainer()
-  def jrubyHome = System.getenv("JRUBY_HOME")
-  c.runScriptlet("ENV['GEM_PATH']='${jrubyHome}/lib/ruby/gems/1.8'")
-
-  def script = """
-                  require 'rubygems'                                                   
-                  require 'jasmine'  
-                  require 'spec'
-                  require 'spec/rake/spectask'
-
-                  Spec::Rake::SpecTask.new(:jasmine_continuous_integration_runner) do |t|
-                    t.spec_opts = ["--color", "--format", "specdoc"]
-                    t.verbose = true
-                    t.spec_files = ['PLUGIN_DIR/scripts/jasmine_runner.rb']
-                  end
-                  Rake::Task["jasmine_continuous_integration_runner"].invoke
-               """
-  script = script.replace("PLUGIN_DIR", "${jasminePluginDir}")   
-  c.runScriptlet(script)             
-}*/

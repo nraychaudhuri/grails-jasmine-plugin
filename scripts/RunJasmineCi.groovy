@@ -18,6 +18,7 @@ target(default: "Run continuous integration tests") {
   def script = """
     require 'rubygems'
     require 'jasmine'
+    require 'pp'
     jasmine_config_overrides = 'PLUGIN_DIR/scripts/jasmine_config.rb'
     require jasmine_config_overrides if File.exist?(jasmine_config_overrides)
     if Jasmine::rspec2?
@@ -42,12 +43,39 @@ target(default: "Run continuous integration tests") {
         end
       end
     end
+    
+    def suite?(type)
+      type.eql?("suite")
+    end
+    
+    def spec?(type)
+      type.eql?("spec")
+    end
+  
+    def find_suite_info(spec_id, si)
+      info = ""
+      si.each {|e|
+        info = info + " " + e["name"] if suite?(e["type"])  
+        return " " + e["name"] if(e["id"] == spec_id && spec?(e["type"]))
+        info += find_suite_info(spec_id, e["children"])
+      }
+      info
+    end
+    
+    def report(sb)
+      sb.declare_suites
+      suite_info = sb.load_suite_info
+      results = sb.load_results
 
+      results.each {|k, v|
+        r = find_suite_info(k.to_i, suite_info)
+        puts r + " -> " + v["result"]
+      }
+    end
+    
     spec_builder.start
     should_stop = true
-    x = spec_builder.load_results
-    #x = spec_builder.declare_suites
-    puts x
+    report(spec_builder)
     spec_builder.stop
   """
   script = script.replace("PLUGIN_DIR", "${jasminePluginDir}")   
